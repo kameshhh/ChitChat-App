@@ -14,7 +14,7 @@ import Signup from "../components/Authentication/Signup";
 
 const HomePage = () => {
   return (
-    <Container maxW="xl" centerContent>
+    <Container maxW="md" centerContent>
       <Box
         d="flex"
         justifyContent="center"

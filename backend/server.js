@@ -6,19 +6,13 @@ const app = express();
 
 dotenv.config()
 connectDB()
+const userRoute = require('./routes/userRoute')
 
 app.get('/', (req, res) => {
     res.send("API is Running")
 });
 
-app.get('/api/chats', (req, res) => {
-    res.send(chats)
-});
-
-app.get('/api/chats/:id', (req, res) => {
-    const single = chats.find((c) => c._id === req.params.id)
-    res.send(single)
-})
+app.use("/api/user", userRoute)
 
 
 const PORT = process.env.PORT || 5000

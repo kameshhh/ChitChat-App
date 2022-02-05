@@ -8,6 +8,10 @@ dotenv.config()
 connectDB()
 const userRoute = require('./routes/userRoute')
 
+app.use(express.json())
+
+
+
 app.get('/', (req, res) => {
     res.send("API is Running")
 });

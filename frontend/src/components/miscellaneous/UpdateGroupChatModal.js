@@ -15,6 +15,7 @@ import {
   useDisclosure,
   useToast,
 } from "@chakra-ui/react";
+import axios from "axios";
 import React, { useState } from "react";
 import { ChatState } from "../../context/ChatProvider";
 import UserBadgeItem from "../UserAvatar/UserBadgeItem";
@@ -32,7 +33,43 @@ const UpdateGroupChatModal = ({ fetchAgain, setFetchAgain }) => {
   const { selectedChat, setSelectedChat, user } = ChatState();
 
   const handleRemove = () => {};
-  const handleRename = () => {};
+  const handleRename = async () => {
+    if (!groupChatName) return;
+
+    try {
+      setRenameloading(true);
+      const config = {
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+      };
+      const { data } = await axios.put(
+        `/api/chat/rename`,
+        {
+          chatId: selectedChat._id,
+          chatName: groupChatName,
+        },
+        config
+      );
+
+      console.log(data._id);
+      // setSelectedChat("");
+      setSelectedChat(data);
+      setFetchAgain(!fetchAgain);
+      setRenameloading(false);
+    } catch (error) {
+      toast({
+        title: "Error Occured!",
+        description: error.response.data.message,
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
+      setRenameloading(false);
+    }
+    setGroupChatName("");
+  };
   const handleSearch = () => {};
 
   return (

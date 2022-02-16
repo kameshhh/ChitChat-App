@@ -2,19 +2,79 @@ import React, { useState } from "react";
 import { ChatState } from "../context/ChatProvider";
 import { Box, Text } from "@chakra-ui/layout";
 import { ArrowBackIcon } from "@chakra-ui/icons";
-import { FormControl, IconButton, Input, Spinner } from "@chakra-ui/react";
+import {
+  FormControl,
+  IconButton,
+  Input,
+  Spinner,
+  useToast,
+} from "@chakra-ui/react";
 import { getSender, getSenderFull } from "../config/ChatLogis";
 import ProfileModal from "./miscellaneous/ProfileModal";
 import UpdateGroupChatModal from "./miscellaneous/UpdateGroupChatModal";
+import axios from "axios";
 
 const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [newMessage, setNewMessage] = useState("");
+  const toast = useToast();
   const { selectedChat, setSelectedChat, user } = ChatState();
 
-  const sendMessage = () => {};
-  const typingHandler = () => {};
+  const sendMessage = async (event) => {
+    if (event.key === "Enter" && newMessage) {
+      // socket.emit("stop typing", selectedChat._id);
+      try {
+        const config = {
+          headers: {
+            "Content-type": "application/json",
+            Authorization: `Bearer ${user.token}`,
+          },
+        };
+        setNewMessage("");
+        const { data } = await axios.post(
+          "/api/message",
+          {
+            content: newMessage,
+            chatId: selectedChat,
+          },
+          config
+        );
+        console.log(data);
+        // socket.emit("new message", data);
+        setMessages([...messages, data]);
+      } catch (error) {
+        toast({
+          title: "Error Occured!",
+          description: "Failed to send the Message",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+          position: "bottom",
+        });
+      }
+    }
+  };
+  const typingHandler = (e) => {
+    setNewMessage(e.target.value);
+
+    // if (!socketConnected) return;
+
+    // if (!typing) {
+    //   setTyping(true);
+    //   socket.emit("typing", selectedChat._id);
+    // }
+    // let lastTypingTime = new Date().getTime();
+    // var timerLength = 3000;
+    // setTimeout(() => {
+    //   var timeNow = new Date().getTime();
+    //   var timeDiff = timeNow - lastTypingTime;
+    //   if (timeDiff >= timerLength && typing) {
+    //     socket.emit("stop typing", selectedChat._id);
+    //     setTyping(false);
+    //   }
+    // }, timerLength);
+  };
   return (
     <>
       {selectedChat ? (
@@ -69,9 +129,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                 margin="auto"
               />
             ) : (
-              <div className="messages">
-                {/* <ScrollableChat messages={messages} /> */}
-              </div>
+              <div>{/* <ScrollableChat messages={messages} /> */}</div>
             )}
             <FormControl
               onKeyDown={sendMessage}

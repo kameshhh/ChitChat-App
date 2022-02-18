@@ -11,6 +11,9 @@ const chatRoutes = require('./routes/chatRoutes');
 const messageRoutes = require("./routes/messageRoutes")
 
 const { notFound, errorHandler } = require('./middleware/errorMiddleware');
+// const http = require('http');
+// const server = http.createServer(app);
+const { Server } = require('socket.io');
 
 app.use(express.json())
 
@@ -30,4 +33,19 @@ app.use(errorHandler)
 
 const PORT = process.env.PORT || 5000
 
-app.listen(PORT, console.log(`The Server is running on ${PORT}`))
+const server = app.listen(PORT, console.log(`The Server is running on ${PORT}`))
+
+
+
+
+const io = require("socket.io")(server, {
+    pingTimeout: 60000,
+    cors: {
+        origin: "http://localhost:3000",
+        // credentials: true,
+    },
+});
+
+io.on("connection", (socket) => {
+    console.log("Connected to socket.io")
+})
